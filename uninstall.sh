@@ -20,7 +20,17 @@ if command -v brew &> /dev/null && brew list hey-cli &> /dev/null 2>&1; then
     REMOVED=1
 fi
 
-# 2. pipx
+# 2. uv
+if command -v uv &> /dev/null; then
+    if uv tool list 2>/dev/null | grep -q "hey-cli-python"; then
+        echo -e "${BLUE}Removing hey-cli via uv...${NC}"
+        uv tool uninstall hey-cli-python
+        echo -e "${GREEN}[OK] uv package removed.${NC}"
+        REMOVED=1
+    fi
+fi
+
+# 3. pipx
 if command -v pipx &> /dev/null && pipx list 2>/dev/null | grep -q "hey-cli-python"; then
     echo -e "${BLUE}Removing hey-cli via pipx...${NC}"
     pipx uninstall hey-cli-python
@@ -28,7 +38,7 @@ if command -v pipx &> /dev/null && pipx list 2>/dev/null | grep -q "hey-cli-pyth
     REMOVED=1
 fi
 
-# 3. pip (fallback)
+# 4. pip (fallback)
 if pip show hey-cli-python &> /dev/null 2>&1; then
     echo -e "${BLUE}Removing hey-cli via pip...${NC}"
     pip uninstall hey-cli-python -y
@@ -37,7 +47,7 @@ if pip show hey-cli-python &> /dev/null 2>&1; then
 fi
 
 if [ "$REMOVED" -eq 0 ]; then
-    echo -e "${YELLOW}No hey-cli installation found (checked Homebrew, pipx, pip).${NC}"
+    echo -e "${YELLOW}No hey-cli installation found (checked Homebrew, uv, pipx, pip).${NC}"
 fi
 
 # 4. Config files

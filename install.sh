@@ -19,7 +19,7 @@ if [ "$(uname -s)" = "Darwin" ]; then
 fi
 
 echo -e "${BLUE}Welcome to the hey-cli cross-platform installer!${NC}"
-echo -e "This script will setup Python, pipx, Ollama, and explicitly build hey-cli locally.\n"
+echo -e "This script will setup Python, uv, Ollama, and explicitly build hey-cli locally.\n"
 
 # 1. Check Python
 if ! command -v python3 &> /dev/null; then
@@ -28,34 +28,19 @@ if ! command -v python3 &> /dev/null; then
 fi
 echo -e "✔️  Python 3 found."
 
-# 2. Setup pipx
-if ! command -v pipx &> /dev/null; then
-    echo -e "${BLUE}pipx not found. Attempting to install via system package manager...${NC}"
-    OS="$(uname -s)"
-    if [ "$OS" = "Darwin" ]; then
-        if command -v brew &> /dev/null; then
-            $BREW_CMD install pipx
-        else
-            echo -e "${RED}Homebrew not found. Please install pipx manually: https://pipx.pypa.io/stable/installation/${NC}"
-            exit 1
-        fi
-    elif [ "$OS" = "Linux" ]; then
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y pipx
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y pipx
-        elif command -v pacman &> /dev/null; then
-            sudo pacman -Sy --noconfirm python-pipx
-        elif command -v zypper &> /dev/null; then
-            sudo zypper install -y python3-pipx
-        else
-             echo -e "${RED}Unsupported Linux package manager. Please install pipx manually.${NC}"
-             exit 1
-        fi
+# 2. Setup uv
+if ! command -v uv &> /dev/null; then
+    echo -e "${BLUE}uv not found. Attempting to install via official script...${NC}"
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    # Ensure uv is in the PATH for this session
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    if ! command -v uv &> /dev/null; then
+        echo -e "${RED}uv installation failed or not in PATH. Please install uv manually: https://docs.astral.sh/uv/getting-started/installation/${NC}"
+        exit 1
     fi
-    pipx ensurepath --force
 else
-    echo -e "✔️  pipx found."
+    echo -e "✔️  uv found."
 fi
 
 # 3. Setup Ollama
@@ -116,9 +101,9 @@ ollama pull "$MODEL" || echo -e "${RED}Warning: Could not pull $MODEL. Ensure 'o
 # 6. Install hey-cli
 echo -e "\n${BLUE}Installing hey-cli-python...${NC}"
 if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
-    arch -arm64 pipx install hey-cli-python --force
+    arch -arm64 uv tool install hey-cli-python --force
 else
-    pipx install hey-cli-python --force
+    uv tool install hey-cli-python --force
 fi
 
 echo -e "\n${GREEN}============ SUCCESS =============${NC}"

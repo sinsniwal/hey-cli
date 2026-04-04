@@ -2,7 +2,7 @@
 .SYNOPSIS
 Uninstalls hey-cli from Windows.
 .DESCRIPTION
-Removes hey-cli installed via pipx, pip, Scoop, or standalone binary.
+Removes hey-cli installed via uv, pipx, pip, Scoop, or standalone binary.
 Optionally removes configuration files.
 #>
 
@@ -25,7 +25,18 @@ try {
     }
 } catch {}
 
-# 2. pipx
+# 2. uv
+try {
+    $uvCheck = & uv tool list 2>&1 | Select-String "hey-cli-python"
+    if ($uvCheck) {
+        Write-Host "Removing hey-cli via uv..." -ForegroundColor Cyan
+        & uv tool uninstall hey-cli-python
+        Write-Host "[OK] uv package removed." -ForegroundColor Green
+        $Removed = $true
+    }
+} catch {}
+
+# 3. pipx
 try {
     $pipxList = & pipx list 2>&1
     if ($pipxList -match "hey-cli-python") {
@@ -36,7 +47,7 @@ try {
     }
 } catch {}
 
-# 3. pip (fallback)
+# 4. pip (fallback)
 try {
     $pipShow = & pip show hey-cli-python 2>&1
     if ($LASTEXITCODE -eq 0) {
@@ -47,7 +58,7 @@ try {
     }
 } catch {}
 
-# 4. Standalone binary
+# 5. Standalone binary
 $StandalonePath = "$env:LOCALAPPDATA\hey-cli\hey.exe"
 if (Test-Path $StandalonePath) {
     Write-Host "Removing standalone binary..." -ForegroundColor Cyan
@@ -57,7 +68,7 @@ if (Test-Path $StandalonePath) {
 }
 
 if (-not $Removed) {
-    Write-Host "No hey-cli installation found (checked Scoop, pipx, pip, standalone)." -ForegroundColor Yellow
+    Write-Host "No hey-cli installation found (checked Scoop, uv, pipx, pip, standalone)." -ForegroundColor Yellow
 }
 
 # 5. Config files

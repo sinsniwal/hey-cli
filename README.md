@@ -71,10 +71,10 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sinsniwal/hey-cli/main
 
 Download `hey.exe` from the [latest release](https://github.com/sinsniwal/hey-cli/releases/latest). No Python required.
 
-### pip / pipx
+### uv (Recommended)
 
 ```bash
-pipx install hey-cli-python
+uv tool install hey-cli-python
 ```
 
 > **Note:** After installation, authenticate with `ollama login` and pull the default model: `ollama pull gpt-oss:20b-cloud`
@@ -187,8 +187,9 @@ hey "your question"
 ```
 
 - **Zero external API calls** — communicates with Ollama via `localhost:11434` using Python's built-in `urllib`.
-- **Zero compiled dependencies** — the only runtime dependency is `rich` (for terminal formatting).
-- **Pure Python 3.9–3.14** — no C extensions, no Rust, no build tools required.
+- **Zero compiled dependencies** — the core logic is pure Python (only `rich` is used for formatting).
+- **Pure Python 3.9–3.14** — works with `uv`, `pipx`, or standard `pip`. No build tools required.
+- **Instant Speed** — Installation with `uv` or `brew` binaries takes < 2 seconds.
 
 ---
 

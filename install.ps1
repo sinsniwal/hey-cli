@@ -2,7 +2,7 @@
 .SYNOPSIS
 Installs hey-cli natively across Windows architectures.
 .DESCRIPTION
-This script verifies Python is installed, forces a user-level pipx installation,
+This script verifies Python is installed, forces a user-level uv installation,
 validates Ollama runtime logic, downloads the default specified model, and natively builds hey.
 
 Alternative install methods (no Python required):
@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 $ModelName = "gpt-oss:20b-cloud"
 
 Write-Host "Welcome to the hey-cli Windows installer!" -ForegroundColor Cyan
-Write-Host "This script will setup Python dependencies, verify Ollama, and build hey-cli locally."
+Write-Host "This script will setup uv and Python dependencies, verify Ollama, and build hey-cli locally."
 Write-Host ""
 
 # 1. Check Python
@@ -27,15 +27,21 @@ try {
     Exit 1
 }
 
-# 2. Setup pipx
+# 2. Setup uv
 try {
-    $pipxCheck = & pipx --version 2>&1
-    Write-Host "[OK] pipx found." -ForegroundColor Green
+    $uvCheck = & uv --version 2>&1
+    Write-Host "[OK] uv found." -ForegroundColor Green
 } catch {
-    Write-Host "pipx not found. Installing via python..." -ForegroundColor Cyan
-    & python -m pip install --user pipx
-    & python -m pipx ensurepath
-    Write-Host "pipx installed. You may need to restart your terminal for the pipx path to register." -ForegroundColor Yellow
+    Write-Host "uv not found. Installing via official script..." -ForegroundColor Cyan
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    # Update current session path
+    $env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
+    
+    if (!(Get-Command uv -ErrorAction SilentlyContinue)) {
+        Write-Host "[ERROR] uv installation failed or not in PATH." -ForegroundColor Red
+        Write-Host "Please install uv manually: https://github.com/astral-sh/uv" -ForegroundColor Yellow
+        Exit 1
+    }
 }
 
 # 3. Setup Ollama
@@ -110,7 +116,7 @@ try {
 # 6. Install hey-cli
 Write-Host ""
 Write-Host "Installing hey-cli-python..." -ForegroundColor Cyan
-& pipx install hey-cli-python --force
+& uv tool install hey-cli-python --force
 
 Write-Host ""
 Write-Host "============ SUCCESS =============" -ForegroundColor Green

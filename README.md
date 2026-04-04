@@ -1,6 +1,6 @@
 <div align="center">
   <h1>hey-cli</h1>
-  <p><strong>Turn natural language into shell commands. Locally. Privately. Instantly.</strong></p>
+  <p><strong>Your terminal buddy that turns plain English into shell scripts — and runs them for you.</strong></p>
 
   <a href="https://pypi.org/project/hey-cli-python/"><img src="https://img.shields.io/pypi/v/hey-cli-python?label=PyPI&color=blue" alt="PyPI" /></a>
   <img src="https://img.shields.io/pypi/pyversions/hey-cli-python?color=blue" alt="Python" />

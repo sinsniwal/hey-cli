@@ -32,7 +32,6 @@ def check_ollama():
         sys.exit(1)
 
 def main():
-    check_ollama()
     parser = argparse.ArgumentParser(
         description="hey-cli: a secure, zero-bloat CLI companion.",
         formatter_class=argparse.RawTextHelpFormatter
@@ -70,6 +69,9 @@ def main():
         
     if args.check_cache:
         sys.exit(0)
+
+    # Only check Ollama when we're about to call the LLM
+    check_ollama()
 
     piped_data = ""
     if not sys.stdin.isatty():

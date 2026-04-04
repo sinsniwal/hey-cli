@@ -4,6 +4,10 @@ Installs hey-cli natively across Windows architectures.
 .DESCRIPTION
 This script verifies Python is installed, forces a user-level pipx installation,
 validates Ollama runtime logic, downloads the default specified model, and natively builds hey.
+
+Alternative install methods (no Python required):
+  Scoop:  scoop install https://raw.githubusercontent.com/sinsniwal/hey-cli/main/scoop/hey-cli.json
+  Winget: winget install hey-cli
 #>
 
 $ErrorActionPreference = "Stop"

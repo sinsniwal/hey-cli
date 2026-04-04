@@ -3,16 +3,34 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hey-cli"
-version = "1.0.0"
+name = "hey-cli-python"
+version = "1.0.2"
 description = "A secure, zero-bloat CLI companion that turns natural language and error logs into executable commands."
-readme = "myplan.md"
-requires-python = ">=3.8"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  {name = "Mohit Singh Sinsniwal"}
+]
+keywords = ["cli", "llm", "bash", "terminal", "ollama", "sysadmin"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = [
-    "pydantic>=2.0.0",
-    "ollama>=0.1.0",
     "rich>=13.0.0"
 ]
+urls.Homepage = "https://github.com/sinsniwal/hey-cli"
+urls.Repository = "https://github.com/sinsniwal/hey-cli"
+urls.Issues = "https://github.com/sinsniwal/hey-cli/issues"
 
 [project.scripts]
 hey = "hey_cli.cli:main"

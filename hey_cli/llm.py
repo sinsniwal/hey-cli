@@ -1,7 +1,8 @@
 import json
 import os
 import platform
-import ollama
+import urllib.request
+import urllib.error
 from .models import CommandResponse, TroubleshootResponse
 
 DEFAULT_MODEL = "gpt-oss:20b-cloud"
@@ -58,12 +59,20 @@ def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_M
 
     for attempt in range(max_retries):
         try:
-            response = ollama.chat(
-                model=model_name,
-                messages=msgs,
-                format="json",
-                options={"temperature": 0.0}
+            payload = {
+                "model": model_name,
+                "messages": msgs,
+                "format": "json",
+                "stream": False,
+                "options": {"temperature": 0.0}
+            }
+            req = urllib.request.Request(
+                "http://localhost:11434/api/chat",
+                data=json.dumps(payload).encode('utf-8'),
+                headers={"Content-Type": "application/json"}
             )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                response = json.loads(resp.read().decode('utf-8'))
             
             raw_val = response["message"]["content"]
             content_str = raw_val
@@ -113,12 +122,20 @@ def generate_troubleshoot_step(objective: str, history: list, model_name: str = 
 
     for attempt in range(max_retries):
         try:
-            response = ollama.chat(
-                model=model_name,
-                messages=msgs,
-                format="json",
-                options={"temperature": 0.0}
+            payload = {
+                "model": model_name,
+                "messages": msgs,
+                "format": "json",
+                "stream": False,
+                "options": {"temperature": 0.0}
+            }
+            req = urllib.request.Request(
+                "http://localhost:11434/api/chat",
+                data=json.dumps(payload).encode('utf-8'),
+                headers={"Content-Type": "application/json"}
             )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                response = json.loads(resp.read().decode('utf-8'))
             
             raw_val = response["message"]["content"].strip()
             if not raw_val:

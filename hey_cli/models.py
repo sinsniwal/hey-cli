@@ -1,12 +1,14 @@
-from pydantic import BaseModel, ConfigDict
+from dataclasses import dataclass
 from typing import Optional
 
-class CommandResponse(BaseModel):
+@dataclass
+class CommandResponse:
     command: str
     explanation: str = ""
     needs_context: bool = False
 
-class TroubleshootResponse(BaseModel):
+@dataclass
+class TroubleshootResponse:
     command: Optional[str] = None
     explanation: str = ""
     is_resolved: bool = False

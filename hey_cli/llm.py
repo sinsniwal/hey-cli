@@ -85,6 +85,8 @@ def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_M
             data = json.loads(content_str)
             return CommandResponse(**data)
             
+        except urllib.error.URLError:
+            raise  # Ollama not reachable — don't retry, bubble up to cli
         except Exception as e:
             last_error = e
             if "refusal" in raw_val.lower() or "sorry" in raw_val.lower():
@@ -150,6 +152,8 @@ def generate_troubleshoot_step(objective: str, history: list, model_name: str = 
             data = json.loads(content_str)
             return TroubleshootResponse(**data)
             
+        except urllib.error.URLError:
+            raise  # Ollama not reachable — don't retry, bubble up to cli
         except Exception as e:
             last_error = e
             msgs.append({"role": "assistant", "content": raw_val})

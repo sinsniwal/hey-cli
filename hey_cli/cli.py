@@ -93,7 +93,10 @@ def main():
         
     console.print("[bold yellow]●[/bold yellow] Thinking...")
     past_messages = history_mgr.load()
-    response = generate_command(objective, context=piped_data, model_name=model_name, history=past_messages)
+    try:
+        response = generate_command(objective, context=piped_data, model_name=model_name, history=past_messages)
+    except urllib.error.URLError:
+        check_ollama()  # always fails here — shows the panel and exits
     
     # Save the user query to history IMMEDIATELY
     history_mgr.append("user", user_prompt)

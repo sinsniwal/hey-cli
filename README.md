@@ -77,7 +77,19 @@ Download `hey.exe` from the [latest release](https://github.com/sinsniwal/hey-cl
 pipx install hey-cli-python
 ```
 
-> **Note:** After installation, pull the default model: `ollama pull gpt-oss:20b-cloud`
+> **Note:** After installation, authenticate with `ollama login` and pull the default model: `ollama pull gpt-oss:20b-cloud`
+
+### Uninstallation
+
+**macOS & Linux:**
+```bash
+curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/uninstall.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sinsniwal/hey-cli/main/uninstall.ps1" -OutFile "$env:TEMP\hey_uninstall.ps1"; & "$env:TEMP\hey_uninstall.ps1"
+```
 
 ---
 

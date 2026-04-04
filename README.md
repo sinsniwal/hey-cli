@@ -2,26 +2,24 @@
   <h1>hey-cli</h1>
   <p><strong>Your terminal buddy that turns plain English into shell scripts — and runs them for you.</strong></p>
 
-  <a href="https://pypi.org/project/hey-cli-python/"><img src="https://img.shields.io/pypi/v/hey-cli-python?label=PyPI&color=blue" alt="PyPI" /></a>
-  <img src="https://img.shields.io/pypi/pyversions/hey-cli-python?color=blue" alt="Python" />
-  <a href="https://github.com/sinsniwal/hey-cli/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" /></a>
-  <a href="https://github.com/sinsniwal/hey-cli/releases/latest"><img src="https://img.shields.io/github/v/release/sinsniwal/hey-cli?label=Release&color=orange" alt="Release" /></a>
+<a href="https://pypi.org/project/hey-cli-python/"><img src="https://img.shields.io/pypi/v/hey-cli-python?label=PyPI&color=blue" alt="PyPI" /></a>
+<img src="https://img.shields.io/pypi/pyversions/hey-cli-python?color=blue" alt="Python" />
+<a href="https://github.com/sinsniwal/hey-cli/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" /></a>
+<a href="https://github.com/sinsniwal/hey-cli/releases/latest"><img src="https://img.shields.io/github/v/release/sinsniwal/hey-cli?label=Release&color=orange" alt="Release" /></a>
+
 </div>
 
 <br>
 
 `hey` is a terminal-native AI assistant that translates plain English into executable shell commands using a locally-hosted LLM via [Ollama](https://ollama.com). Your data never leaves your machine.
 
-```
-$ hey find all python files modified in the last 24 hours
-● Thinking...
+<div align="center">
+  <video src="assets/demo.mp4" width="800" controls autoplay loop muted>
+    Your browser does not support the video tag.
+  </video>
+</div>
 
-▶ find . -name "*.py" -mtime -1 -type f
-
-Run this command? [Y/n]:
-```
-
----
+<br>
 
 ## Features
 
@@ -82,11 +80,13 @@ uv tool install hey-cli-python
 ### Uninstallation
 
 **macOS & Linux:**
+
 ```bash
 curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/uninstall.sh | bash
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sinsniwal/hey-cli/main/uninstall.ps1" -OutFile "$env:TEMP\hey_uninstall.ps1"; & "$env:TEMP\hey_uninstall.ps1"
 ```
@@ -101,26 +101,25 @@ hey <your objective in plain English>
 
 ### Examples
 
-| Command | What happens |
-|---------|-------------|
-| `hey list all running docker containers` | Generates and runs `docker ps` |
-| `hey is port 8080 in use?` | Silently runs `lsof -i :8080`, reads output, answers in English |
-| `hey forcefully delete all .pyc files` | Generates `find . -name "*.pyc" -delete`, pauses for confirmation |
-| `hey compress this folder into a tar.gz` | Generates the correct `tar` command for your OS |
-| `npm run build 2>&1 \| hey what broke?` | Reads piped stderr and explains the error |
-| `hey --clear` | Wipes conversational memory |
+| Command                                  | What happens                                                      |
+| ---------------------------------------- | ----------------------------------------------------------------- |
+| `hey list all running docker containers` | Generates and runs `docker ps`                                    |
+| `hey is port 8080 in use?`               | Silently runs `lsof -i :8080`, reads output, answers in English   |
+| `hey forcefully delete all .pyc files`   | Generates `find . -name "*.pyc" -delete`, pauses for confirmation |
+| `hey compress this folder into a tar.gz` | Generates the correct `tar` command for your OS                   |
+| `npm run build 2>&1 \| hey what broke?`  | Reads piped stderr and explains the error                         |
+| `hey --clear`                            | Wipes conversational memory                                       |
 
 ### Execution Levels
 
-| Level | Flag | Behavior |
-|-------|------|----------|
-| 0 | `--level 0` | Dry-run — shows the command but never executes |
-| 1 | *(default)* | Supervised — safe commands auto-run, risky ones ask for confirmation |
-| 2 | `--level 2` | Unrestricted — executes everything without confirmation |
-| 3 | `--level 3` | Troubleshooter — iteratively debugs until the objective is resolved |
+| Level | Flag        | Behavior                                                             |
+| ----- | ----------- | -------------------------------------------------------------------- |
+| 0     | `--level 0` | Dry-run — shows the command but never executes                       |
+| 1     | _(default)_ | Supervised — safe commands auto-run, risky ones ask for confirmation |
+| 2     | `--level 2` | Unrestricted — executes everything without confirmation              |
+| 3     | `--level 3` | Troubleshooter — iteratively debugs until the objective is resolved  |
 
 ---
-
 
 ---
 

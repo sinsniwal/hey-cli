@@ -1,16 +1,38 @@
 import argparse
 import sys
 import os
+import urllib.request
+import urllib.error
 
 from .governance import GovernanceEngine
 from .llm import generate_command
 from .history import HistoryManager
 from .runner import CommandRunner
 from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 console = Console()
 
+def check_ollama():
+    """Check if Ollama is reachable at localhost:11434. Exit with instructions if not."""
+    try:
+        urllib.request.urlopen("http://localhost:11434", timeout=2)
+    except Exception:
+        msg = Text()
+        msg.append("Ollama is not running or not installed.\n\n", style="bold red")
+        msg.append("Install Ollama:\n", style="bold white")
+        msg.append("  Linux / macOS:\n", style="dim")
+        msg.append("    curl -fsSL https://ollama.com/install.sh | sh\n", style="bold cyan")
+        msg.append("  Windows:\n", style="dim")
+        msg.append("    https://ollama.com/download/windows\n\n", style="bold cyan")
+        msg.append("Then pull the default model:\n", style="bold white")
+        msg.append("    ollama pull gpt-oss:20b-cloud", style="bold cyan")
+        console.print(Panel(msg, title="[bold yellow]⚠  Ollama Required[/bold yellow]", border_style="yellow"))
+        sys.exit(1)
+
 def main():
+    check_ollama()
     parser = argparse.ArgumentParser(
         description="hey-cli: a secure, zero-bloat CLI companion.",
         formatter_class=argparse.RawTextHelpFormatter

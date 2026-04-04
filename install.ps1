@@ -50,6 +50,42 @@ try {
     Exit 1
 }
 
+# Ensure Ollama is running before proceeding
+Write-Host ""
+Write-Host "Verifying Ollama server status..." -ForegroundColor Cyan
+try {
+    $response = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -ErrorAction Stop
+} catch {
+    Write-Host "Ollama server is not running. Attempting to start..." -ForegroundColor Yellow
+    # Windows: Start Ollama app from common locations
+    $ollamaExe = "$env:LOCALAPPDATA\Programs\Ollama\ollama app.exe"
+    if (Test-Path $ollamaExe) {
+        Start-Process $ollamaExe
+    } else {
+        Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden
+    }
+    
+    Write-Host -NoNewline "Waiting for Ollama to boot"
+    for ($i=0; $i -lt 15; $i++) {
+        try {
+            $response = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -ErrorAction Stop
+            Write-Host " [OK]" -ForegroundColor Green
+            break
+        } catch {
+            Write-Host -NoNewline "."
+            Start-Sleep -Seconds 2
+        }
+    }
+    Write-Host ""
+}
+
+try {
+    $response = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -ErrorAction Stop
+} catch {
+    Write-Host "[WARNING] Could not connect to Ollama server at localhost:11434." -ForegroundColor Red
+    Write-Host "Please ensure Ollama is running and try again." -ForegroundColor Yellow
+}
+
 # 4. Authenticate with Ollama
 Write-Host ""
 Write-Host "Authenticating with Ollama..." -ForegroundColor Cyan

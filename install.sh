@@ -61,6 +61,34 @@ else
     echo -e "✔️  Ollama found."
 fi
 
+# Ensure Ollama is running before proceeding
+echo -e "\n${BLUE}Verifying Ollama server status...${NC}"
+if ! curl -s http://localhost:11434/api/tags > /dev/null; then
+    echo -e "Ollama server is not running. Attempting to start..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open -a Ollama
+    elif command -v systemctl &> /dev/null; then
+        sudo systemctl start ollama || true
+    else
+        ollama serve > /dev/null 2>&1 &
+    fi
+    
+    echo -n "Waiting for Ollama to boot"
+    MAX_RETRIES=10
+    COUNT=0
+    until curl -s http://localhost:11434/api/tags > /dev/null || [ $COUNT -eq $MAX_RETRIES ]; do
+        echo -n "."
+        sleep 2
+        ((COUNT++))
+    done
+    echo ""
+fi
+
+if ! curl -s http://localhost:11434/api/tags > /dev/null; then
+    echo -e "${RED}Warning: Could not connect to Ollama server at localhost:11434.${NC}"
+    echo -e "Please ensure Ollama is running and try again."
+fi
+
 # 4. Authenticate with Ollama
 echo -e "\n${BLUE}Authenticating with Ollama...${NC}"
 echo -e "If prompted, sign in with your Ollama account."

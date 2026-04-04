@@ -9,6 +9,13 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}Welcome to the hey-cli cross-platform installer!${NC}"
 echo -e "This script will setup Python, pipx, Ollama, and explicitly build hey-cli locally.\n"
 
+# 0. Force native ARM execution on Apple Silicon if running under Rosetta 2
+if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+    echo -e "${BLUE}Detected Rosetta 2 emulation. Restarting natively with arch -arm64...${NC}"
+    exec arch -arm64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh)" "$@"
+    exit 0
+fi
+
 # 1. Check Python
 if ! command -v python3 &> /dev/null; then
     echo -e "${RED}Error: python3 is not installed. Please install Python 3.9+ first.${NC}"

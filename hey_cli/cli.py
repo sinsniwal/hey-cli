@@ -24,15 +24,17 @@ def check_ollama():
     except Exception:
         msg = Text()
         msg.append("Ollama is not running or not installed.\n\n", style="bold red")
-        msg.append("Install Ollama:\n", style="bold white")
-        msg.append("  Linux / macOS:\n", style="dim")
+        msg.append("1. Install Ollama:\n", style="bold white")
+        msg.append("   Linux / macOS:\n", style="dim")
         msg.append(
-            "    curl -fsSL https://ollama.com/install.sh | sh\n", style="bold cyan"
+            "     curl -fsSL https://ollama.com/install.sh | sh\n", style="bold cyan"
         )
-        msg.append("  Windows:\n", style="dim")
-        msg.append("    https://ollama.com/download/windows\n\n", style="bold cyan")
-        msg.append("Then pull the default model:\n", style="bold white")
-        msg.append("    ollama pull gpt-oss:20b-cloud", style="bold cyan")
+        msg.append("   Windows:\n", style="dim")
+        msg.append("     https://ollama.com/download/windows\n\n", style="bold cyan")
+        msg.append("2. Authenticate:\n", style="bold white")
+        msg.append("     ollama login\n\n", style="bold cyan")
+        msg.append("3. Pull the default model:\n", style="bold white")
+        msg.append("     ollama pull gpt-oss:20b-cloud", style="bold cyan")
         console.print(
             Panel(
                 msg,

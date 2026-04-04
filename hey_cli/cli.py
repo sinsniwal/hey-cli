@@ -120,9 +120,24 @@ def main():
         response = generate_command(
             objective, context=piped_data, model_name=model_name, history=past_messages
         )
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            msg = Text()
+            msg.append("Ollama authentication required.\n\n", style="bold red")
+            msg.append("Your connection to Ollama is not authenticated.\n", style="bold white")
+            msg.append("\nPlease run: ", style="dim")
+            msg.append("ollama login\n", style="bold cyan")
+            msg.append("\nThis will verify your identity with Ollama and allow the request to proceed.", style="dim")
+            console.print(Panel(msg, title="[bold yellow]🔑 Authentication Required[/bold yellow]", border_style="yellow"))
+        else:
+            console.print(f"\n[bold red]● Ollama API error:[/bold red] HTTP {e.code} — {e.reason}")
+        sys.exit(1)
     except (urllib.error.URLError, ConnectionError, OSError):
         check_ollama()  # shows the panel and exits
         sys.exit(1)  # fallback — should never reach here
+    except Exception as e:
+        console.print(f"\n[bold red]● Error:[/bold red] {e}")
+        sys.exit(1)
 
     # Save the user query to history IMMEDIATELY
     history_mgr.append("user", user_prompt)

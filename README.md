@@ -45,6 +45,10 @@ brew tap sinsniwal/hey-cli
 brew install hey-cli
 ```
 
+> [!TIP]
+> **Apple Silicon (M1/M2/M3) Note:** If you see an error about `Rosetta 2` while installing via Homebrew, ensure your terminal is running natively (not under Rosetta emulation). You can force a native installation by running:
+> `arch -arm64 brew install hey-cli`
+
 ### macOS & Linux (curl)
 
 ```bash
@@ -102,6 +106,23 @@ hey <your objective in plain English>
 | 1 | *(default)* | Supervised — safe commands auto-run, risky ones ask for confirmation |
 | 2 | `--level 2` | Unrestricted — executes everything without confirmation |
 | 3 | `--level 3` | Troubleshooter — iteratively debugs until the objective is resolved |
+
+---
+
+
+---
+
+## Authentication & Custom Endpoints
+
+`hey` works locally by default, but it also supports authenticated Ollama instances and custom hosts:
+
+- **Standard Login:** Most users should run `ollama login` once to authenticate their terminal with the local or cloud instance.
+- **Auth Key:** If you are in a CI/CD or server environment, you can set the `OLLAMA_API_KEY` environment variable.
+- **Custom Host:** If Ollama is running on a different port or machine, set `OLLAMA_HOST` (e.g., `export OLLAMA_HOST="http://192.168.1.10:11434"`).
+- **Custom Model:** You can provide a custom model via `--model`:
+  ```bash
+  hey "summarize this file" --model llama3
+  ```
 
 ---
 

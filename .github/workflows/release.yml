@@ -33,23 +33,26 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: python -m twine upload dist/*
 
-  # ─── Job 2: Update Homebrew Tap ───
+  # ─── Job 4: Update Homebrew Tap ───
   update-homebrew:
     name: Update Homebrew Tap
     runs-on: ubuntu-latest
-    needs: publish-pypi
-
+    needs: [publish-pypi, build-binaries]
     steps:
       - name: Checkout hey-cli
         uses: actions/checkout@v4
+
+      - name: Download all checksums
+        uses: actions/download-artifact@v4
+        with:
+          path: checksums
+          pattern: checksum-*
+          merge-multiple: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Wait for PyPI CDN propagation
-        run: sleep 30
 
       - name: Clone Homebrew Tap
         env:
@@ -61,7 +64,7 @@ jobs:
         env:
           TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
-          python scripts/generate_brew.py /tmp/homebrew-tap
+          python scripts/generate_brew.py /tmp/homebrew-tap ${{ github.event.release.tag_name }} ./checksums
           cd /tmp/homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -69,10 +72,29 @@ jobs:
           git diff --cached --quiet && echo "No formula changes" || \
             (git commit -m "Update hey-cli to ${{ github.event.release.tag_name }}" && git push)
 
-  # ─── Job 3: Build Windows Executable ───
-  build-windows:
-    name: Build Windows Executable
-    runs-on: windows-latest
+  # ─── Job 3: Build Standalone Binaries ───
+  build-binaries:
+    name: Build Binary (${{ matrix.os }} - ${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x86_64
+            output_name: hey.exe
+            type: windows
+          - os: macos-latest # Apple Silicon
+            arch: arm64
+            output_name: hey-macos-arm64
+            type: macos
+          - os: macos-13 # Intel Mac
+            arch: x86_64
+            output_name: hey-macos-x86_64
+            type: macos
+          - os: ubuntu-latest
+            arch: x86_64
+            output_name: hey-linux-x86_64
+            type: linux
     permissions:
       contents: write
 
@@ -92,14 +114,41 @@ jobs:
           pip install .
 
       - name: Build Executable with PyInstaller
+        shell: bash
         run: |
           pyinstaller --name hey --onefile --hidden-import hey_cli --collect-all hey_cli entry_point.py
+          if [ "${{ matrix.type }}" == "windows" ]; then
+            mv dist/hey.exe dist/${{ matrix.output_name }}
+          else
+            mv dist/hey dist/${{ matrix.output_name }}
+          fi
 
       - name: Smoke Test
+        shell: bash
         run: |
-          dist\hey.exe --help
+          if [ "${{ matrix.type }}" == "windows" ]; then
+            ./dist/${{ matrix.output_name }} --help
+          else
+            chmod +x ./dist/${{ matrix.output_name }}
+            ./dist/${{ matrix.output_name }} --help
+          fi
 
       - name: Upload Executable to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/hey.exe
+          files: dist/${{ matrix.output_name }}
+
+      - name: Generate Checksum
+        shell: bash
+        run: |
+          if [ "${{ matrix.type }}" == "windows" ]; then
+            certutil -hashfile dist/${{ matrix.output_name }} SHA256 | grep -v "hash" | head -n 2 | tail -n 1 > dist/${{ matrix.output_name }}.sha256
+          else
+            shasum -a 256 dist/${{ matrix.output_name }} | awk '{print $1}' > dist/${{ matrix.output_name }}.sha256
+          fi
+
+      - name: Upload Checksum Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksum-${{ matrix.output_name }}
+          path: dist/${{ matrix.output_name }}.sha256

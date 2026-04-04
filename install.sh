@@ -6,15 +6,17 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Welcome to the hey-cli cross-platform installer!${NC}"
-echo -e "This script will setup Python, pipx, Ollama, and explicitly build hey-cli locally.\n"
-
-# 0. Force native ARM execution on Apple Silicon if running under Rosetta 2
-if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
-    echo -e "${BLUE}Detected Rosetta 2 emulation. Restarting natively with arch -arm64...${NC}"
-    exec arch -arm64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh)" "$@"
-    exit 0
+# 0. Detect Architecture for macOS
+BREW_CMD="brew"
+if [ "$(uname -s)" = "Darwin" ]; then
+    # If on Apple Silicon (detected by sysctl) but running as x86_64, use arch -arm64
+    if [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+        echo -e "${BLUE}Detected Rosetta 2 emulation. Switching to native ARM mode...${NC}"
+        BREW_CMD="arch -arm64 brew"
+    fi
 fi
+
+# 1. Check Python
 
 # 1. Check Python
 if ! command -v python3 &> /dev/null; then
@@ -29,13 +31,7 @@ if ! command -v pipx &> /dev/null; then
     OS="$(uname -s)"
     if [ "$OS" = "Darwin" ]; then
         if command -v brew &> /dev/null; then
-            # Detect if we're on Apple Silicon but running under Rosetta 2
-            if [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
-                echo -e "${BLUE}Detected Rosetta 2 emulation. Forcing native ARM installation...${NC}"
-                arch -arm64 brew install pipx
-            else
-                brew install pipx
-            fi
+            $BREW_CMD install pipx
         else
             echo -e "${RED}Homebrew not found. Please install pipx manually: https://pipx.pypa.io/stable/installation/${NC}"
             exit 1

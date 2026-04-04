@@ -6,6 +6,8 @@ import urllib.error
 from .models import CommandResponse, TroubleshootResponse
 
 DEFAULT_MODEL = "gpt-oss:20b-cloud"
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+OLLAMA_API_KEY = os.environ.get("OLLAMA_API_KEY", "")
 
 SYSTEM_PROMPT = r"""You are hey-cli, an autonomous, minimalist CLI companion and terminal expert. 
 Your primary goal is to turn natural language objectives and error logs into actionable shell commands.
@@ -26,15 +28,17 @@ CRITICAL JSON REQUIREMENT: If your bash command contains any backslashes (e.g. f
 
 from .skills import get_compiled_skills
 
+
 def get_system_context() -> str:
     os_name = platform.system()
     os_release = platform.release()
     arch = platform.machine()
     shell = os.environ.get("SHELL", "unknown")
-    
+
     skills_block = f"\n\n{get_compiled_skills()}"
-         
+
     return f"Operating System: {os_name} {os_release} ({arch})\nCurrent Shell: {shell}{skills_block}"
+
 
 TROUBLESHOOT_PROMPT = r"""You are acting as an iterative troubleshooter. 
 You will be provided with an objective, the previous commands attempted, and the stdout/stderr.
@@ -42,17 +46,23 @@ Determine the next command to run to resolve the issue, OR if the issue is resol
 Keep your explanation brief and chill. If a file or tests do not exist, do not try to aggressively brute-force create configurations. Just explain the situation and set is_resolved=True to gracefully stop.
 """
 
-def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_MODEL, history: list = None) -> CommandResponse:
+
+def generate_command(
+    prompt: str,
+    context: str = "",
+    model_name: str = DEFAULT_MODEL,
+    history: list = None,
+) -> CommandResponse:
     content = prompt
     if context:
         content = f"Context (e.g. error logs or piped data):\n{context}\n\nObjective:\n{prompt}"
-        
+
     sys_context = f"--- ENVIRONMENT ---\n{get_system_context()}\n-------------------\n"
     msgs = [{"role": "system", "content": SYSTEM_PROMPT + "\n\n" + sys_context}]
     if history:
         msgs.extend(history)
     msgs.append({"role": "user", "content": content})
-    
+
     max_retries = 3
     last_error = None
     raw_val = "None"
@@ -64,16 +74,20 @@ def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_M
                 "messages": msgs,
                 "format": "json",
                 "stream": False,
-                "options": {"temperature": 0.0}
+                "options": {"temperature": 0.0},
             }
+            url = f"{OLLAMA_HOST.rstrip('/')}/api/chat"
+            headers = {"Content-Type": "application/json"}
+            if OLLAMA_API_KEY:
+                headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
             req = urllib.request.Request(
-                "http://localhost:11434/api/chat",
-                data=json.dumps(payload).encode('utf-8'),
-                headers={"Content-Type": "application/json"}
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers=headers,
             )
             with urllib.request.urlopen(req, timeout=30) as resp:
-                response = json.loads(resp.read().decode('utf-8'))
-            
+                response = json.loads(resp.read().decode("utf-8"))
+
             raw_val = response["message"]["content"]
             content_str = raw_val
 
@@ -81,10 +95,10 @@ def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_M
                 content_str = content_str[7:-3].strip()
             elif content_str.startswith("```"):
                 content_str = content_str[3:-3].strip()
-                
+
             data = json.loads(content_str)
             return CommandResponse(**data)
-            
+
         except (urllib.error.URLError, ConnectionError, OSError):
             raise  # Ollama not reachable — don't retry, bubble up to cli
         except Exception as e:
@@ -93,31 +107,48 @@ def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_M
                 return CommandResponse(
                     command="",
                     explanation=f"LLM Safety Trigger: The model refused to generate this command.\n\nRaw output: {raw_val.strip()}",
-                    needs_context=False
+                    needs_context=False,
                 )
-            
+
             msgs.append({"role": "assistant", "content": raw_val})
-            msgs.append({"role": "user", "content": f"Your JSON output failed validation: {str(e)}\nPlease strictly follow the schema and output ONLY valid JSON without markdown wrapping."})
+            msgs.append(
+                {
+                    "role": "user",
+                    "content": f"Your JSON output failed validation: {str(e)}\nPlease strictly follow the schema and output ONLY valid JSON without markdown wrapping.",
+                }
+            )
 
     return CommandResponse(
-        command="", 
-        explanation=f"Error generating command from LLM after {max_retries} retries: {str(last_error)}\nRaw Output:\n{raw_val}"
+        command="",
+        explanation=f"Error generating command from LLM after {max_retries} retries: {str(last_error)}\nRaw Output:\n{raw_val}",
     )
 
-def generate_troubleshoot_step(objective: str, history: list, model_name: str = DEFAULT_MODEL) -> TroubleshootResponse:
-    history_text = "\n".join([
-        f"Cmd: {h['cmd']}\nExit: {h['exit_code']}\nOut/Err:\n{h['output']}"
-        for h in history
-    ])
-    
+
+def generate_troubleshoot_step(
+    objective: str, history: list, model_name: str = DEFAULT_MODEL
+) -> TroubleshootResponse:
+    history_text = "\n".join(
+        [
+            f"Cmd: {h['cmd']}\nExit: {h['exit_code']}\nOut/Err:\n{h['output']}"
+            for h in history
+        ]
+    )
+
     content = f"Objective:\n{objective}\n\nHistory of execution:\n{history_text}\n\nAnalyze the specific error and provide the NEXT logical command to test or fix. Re-read logs carefully."
-    
+
     sys_context = f"--- ENVIRONMENT ---\n{get_system_context()}\n-------------------\n"
     msgs = [
-        {"role": "system", "content": SYSTEM_PROMPT + "\n" + TROUBLESHOOT_PROMPT + "\n\n" + sys_context},
-        {"role": "user", "content": content}
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT
+            + "\n"
+            + TROUBLESHOOT_PROMPT
+            + "\n\n"
+            + sys_context,
+        },
+        {"role": "user", "content": content},
     ]
-    
+
     max_retries = 3
     last_error = None
     raw_val = "None"
@@ -129,38 +160,47 @@ def generate_troubleshoot_step(objective: str, history: list, model_name: str = 
                 "messages": msgs,
                 "format": "json",
                 "stream": False,
-                "options": {"temperature": 0.0}
+                "options": {"temperature": 0.0},
             }
+            url = f"{OLLAMA_HOST.rstrip('/')}/api/chat"
+            headers = {"Content-Type": "application/json"}
+            if OLLAMA_API_KEY:
+                headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
             req = urllib.request.Request(
-                "http://localhost:11434/api/chat",
-                data=json.dumps(payload).encode('utf-8'),
-                headers={"Content-Type": "application/json"}
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers=headers,
             )
             with urllib.request.urlopen(req, timeout=30) as resp:
-                response = json.loads(resp.read().decode('utf-8'))
-            
+                response = json.loads(resp.read().decode("utf-8"))
+
             raw_val = response["message"]["content"].strip()
             if not raw_val:
                 raise ValueError("LLM returned empty JSON object.")
-                
+
             content_str = raw_val
             if content_str.startswith("```json"):
                 content_str = content_str[7:-3].strip()
             elif content_str.startswith("```"):
                 content_str = content_str[3:-3].strip()
-                
+
             data = json.loads(content_str)
             return TroubleshootResponse(**data)
-            
+
         except (urllib.error.URLError, ConnectionError, OSError):
             raise  # Ollama not reachable — don't retry, bubble up to cli
         except Exception as e:
             last_error = e
             msgs.append({"role": "assistant", "content": raw_val})
-            msgs.append({"role": "user", "content": f"Your JSON output failed validation: {str(e)}\nFix the syntax and output ONLY strict JSON schema."})
+            msgs.append(
+                {
+                    "role": "user",
+                    "content": f"Your JSON output failed validation: {str(e)}\nFix the syntax and output ONLY strict JSON schema.",
+                }
+            )
 
     return TroubleshootResponse(
         command=None,
         explanation=f"Error analyzing execution after {max_retries} retries: {str(last_error)}\nRaw Output:\n{raw_val}",
-        is_resolved=False
+        is_resolved=False,
     )

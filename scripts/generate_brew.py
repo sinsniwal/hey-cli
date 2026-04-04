@@ -88,7 +88,11 @@ def generate_formula():
 end
 """
 
-    tap_dir = os.path.expanduser("~/github/homebrew-hey-cli/Formula")
+    # Allow overriding the output directory via CLI argument
+    if len(sys.argv) > 1:
+        tap_dir = os.path.join(sys.argv[1], "Formula")
+    else:
+        tap_dir = os.path.expanduser("~/github/homebrew-hey-cli/Formula")
     os.makedirs(tap_dir, exist_ok=True)
     
     formula_path = os.path.join(tap_dir, "hey-cli.rb")

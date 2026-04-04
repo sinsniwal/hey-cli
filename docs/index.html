@@ -72,24 +72,32 @@
         <section class="architecture">
             <h2>Under the Hood</h2>
             <div class="flow-container">
-                <div class="flow-step">
+                <div class="flow-step" data-node="input">
                     <div class="step-icon"><i data-lucide="message-square"></i></div>
                     <span>Plain English</span>
                 </div>
                 <div class="arrow"><i data-lucide="chevron-right"></i></div>
-                <div class="flow-step highlight">
+                <div class="flow-step active" data-node="governance">
                     <div class="step-icon"><i data-lucide="shield-alert"></i></div>
                     <span>Governance Engine</span>
                 </div>
                 <div class="arrow"><i data-lucide="chevron-right"></i></div>
-                <div class="flow-step">
+                <div class="flow-step" data-node="ollama">
                     <div class="step-icon"><i data-lucide="database"></i></div>
                     <span>Ollama (Local LLM)</span>
                 </div>
                 <div class="arrow"><i data-lucide="chevron-right"></i></div>
-                <div class="flow-step">
+                <div class="flow-step" data-node="runner">
                     <div class="step-icon"><i data-lucide="play"></i></div>
                     <span>Command Runner</span>
+                </div>
+            </div>
+
+            <!-- New Node Details Container -->
+            <div class="node-details-container">
+                <div id="node-info" class="node-info-box">
+                    <h3 id="node-title">Governance Engine</h3>
+                    <p id="node-description">The core of hey-cli's safety. It intercepts every command before execution, checking it against <code>~/.hey-rules.json</code>. Dangerous commands (like <code>rm -rf /</code>) are blocked or restricted, requiring manual keyword confirmation to proceed.</p>
                 </div>
             </div>
         </section>
@@ -125,16 +133,9 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="download-actions">
-                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-macos-arm64" class="btn-download">
-                                <i data-lucide="download"></i> Download for Apple Silicon
-                            </a>
-                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-macos-x86_64" class="btn-download secondary">
-                                <i data-lucide="download"></i> Intel Mac
-                            </a>
-                        </div>
-                        <div class="tip-box">
-                            <strong>Note:</strong> macOS users may need to allow the binary in <strong>System Settings > Security & Privacy</strong> after downloading.
+                        <div class="install-footer">
+                            <p>Alternative: Standard Standalone Binaries for <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-macos-arm64">Apple Silicon</a> or <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-macos-x86_64">Intel Mac</a>.</p>
+                            <p class="secondary-info">Note: macOS may require manual approval in <strong>Security & Privacy</strong> for unnotarized binaries.</p>
                         </div>
                     </div>
 
@@ -158,10 +159,8 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="download-actions">
-                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-linux-x86_64" class="btn-download">
-                                <i data-lucide="download"></i> Download Linux Binary
-                            </a>
+                        <div class="install-footer">
+                            <p>Looking for a <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-linux-x86_64">standalone x86_64 binary</a>?</p>
                         </div>
                     </div>
 
@@ -185,10 +184,8 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="download-actions">
-                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey.exe" class="btn-download">
-                                <i data-lucide="download"></i> Download hey.exe
-                            </a>
+                        <div class="install-footer">
+                            <p>Prefer a direct executable? Download <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey.exe">hey.exe</a>.</p>
                         </div>
                     </div>
                 </div>

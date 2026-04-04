@@ -221,6 +221,7 @@ h1 {
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+  margin-bottom: 3rem;
 }
 
 .flow-step {
@@ -233,6 +234,14 @@ h1 {
   align-items: center;
   gap: 0.75rem;
   min-width: 160px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flow-step:hover {
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+  transform: translateY(-5px);
 }
 
 .flow-step span {
@@ -241,21 +250,72 @@ h1 {
   color: var(--text-muted);
 }
 
-.flow-step.highlight {
+.flow-step.active {
   border-color: var(--primary);
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.25);
 }
 
-.flow-step.highlight span {
+.flow-step.active span {
   color: var(--text-main);
 }
 
 .step-icon {
   color: var(--primary);
+  transition: transform 0.3s ease;
+}
+
+.flow-step:hover .step-icon {
+  transform: scale(1.1);
 }
 
 .arrow {
   color: var(--border);
+  display: flex;
+  align-items: center;
+}
+
+/* Node Details Styling */
+.node-details-container {
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: detailsFadeIn 0.5s forwards;
+}
+
+@keyframes detailsFadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.node-info-box {
+  padding: 2rem;
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  text-align: left;
+}
+
+.node-info-box h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.node-info-box p {
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.node-info-box code {
+  color: var(--accent);
+  background: rgba(0,0,0,0.3);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
 }
 
 /* Install Section */
@@ -360,57 +420,31 @@ h1 {
   color: var(--text-main);
 }
 
-.download-actions {
-  display: flex;
-  gap: 1rem;
+.install-footer {
   margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-.btn-download {
-  flex: 1;
-  min-width: 200px;
-  background: var(--primary);
-  color: #fff;
-  padding: 1rem;
-  border-radius: 1rem;
-  text-decoration: none;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  transition: all 0.2s;
-}
-
-.btn-download:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
-}
-
-.btn-download.secondary {
-  background: var(--glass);
-  border: 1px solid var(--border);
-}
-
-.btn-download.secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--text-muted);
-}
-
-.tip-box {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 4px solid var(--primary);
-  border-radius: 0 0.5rem 0.5rem 0;
-  font-size: 0.85rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
   color: var(--text-muted);
 }
 
-.tip-box strong {
-  color: var(--text-main);
+.install-footer p {
+  margin-bottom: 0.5rem;
+}
+
+.install-footer a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.install-footer a:hover {
+  text-decoration: underline;
+}
+
+.secondary-info {
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
 
 /* Footer */
@@ -426,5 +460,4 @@ footer {
   h1 { font-size: 2.5rem; }
   .hero { padding: 3rem 0; }
   .install-container { padding: 1.5rem; }
-  .download-actions { flex-direction: column; }
 }

@@ -1,5 +1,7 @@
 import subprocess
 import sys
+import json
+import dataclasses
 from typing import Optional
 
 from .governance import GovernanceEngine, Action
@@ -121,7 +123,7 @@ class CommandRunner:
             if not cmd or cmd.startswith("echo ") or cmd.startswith("printf "):
                 self.history_mgr.append("assistant", current_response.explanation)
             else:
-                self.history_mgr.append("assistant", current_response.model_dump_json())
+                self.history_mgr.append("assistant", json.dumps(dataclasses.asdict(current_response)))
 
         # Level 0 = Dry Run
         if self.level == 0:

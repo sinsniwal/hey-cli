@@ -1,69 +1,175 @@
 <div align="center">
-  <h1>hey-cli 🤖</h1>
-  <p><strong>A zero-bloat, privacy-first, locally-hosted CLI agent powered by Ollama.</strong></p>
+  <h1>hey-cli</h1>
+  <p><strong>Turn natural language into shell commands. Locally. Privately. Instantly.</strong></p>
 
-  <img src="https://img.shields.io/badge/Python-3.9+-blue.svg" alt="Python Version" />
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
-  <img src="https://img.shields.io/badge/Ollama-Local-orange.svg" alt="Ollama Local" />
+  <a href="https://pypi.org/project/hey-cli-python/"><img src="https://img.shields.io/pypi/v/hey-cli-python?label=PyPI&color=blue" alt="PyPI" /></a>
+  <img src="https://img.shields.io/pypi/pyversions/hey-cli-python?color=blue" alt="Python" />
+  <a href="https://github.com/sinsniwal/hey-cli/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" /></a>
+  <a href="https://github.com/sinsniwal/hey-cli/releases/latest"><img src="https://img.shields.io/github/v/release/sinsniwal/hey-cli?label=Release&color=orange" alt="Release" /></a>
 </div>
 
 <br>
 
-`hey` isn't just an LLM wrapper. It's a context-aware system agent designed to bridge the gap between human language and POSIX shell utilities natively on your host machine.
+`hey` is a terminal-native AI assistant that translates plain English into executable shell commands using a locally-hosted LLM via [Ollama](https://ollama.com). Your data never leaves your machine.
 
-> Ask it to parse your error logs, debug Docker, clear DNS caches, or execute complex file maneuvers—all while executing safely behind a dynamic zero-trust governance matrix.
+```
+$ hey find all python files modified in the last 24 hours
+● Thinking...
 
-## 🚀 Why `hey-cli` over Copilot/ChatGPT?
-1. **Total Privacy**: Your code and system logs never leave your physical CPU. All context gathering and reasoning is done locally via [Ollama](https://ollama.com).
-2. **True Cross-Platform Skills**: Under the hood, `hey-cli`'s "Skills Engine" detects if you're on macOS (BSD), Ubuntu (GNU), Windows (PowerShell), or Arch Linux, and actively refuses to generate incompatible flags like `xargs -d` on Mac.
-3. **Agentic Execution**: Ask "is docker running?" and `hey` will silently execute `docker info` in the background, read the stdout, analyze it, and return a plain English answer.
-4. **Security Governance**: Built-in AST-level parsing. Safe commands (like `git status`) auto-run. Destructive commands (`rm -rf`, `-exec delete`) require explicit typed confirmation.
+▶ find . -name "*.py" -mtime -1 -type f
 
-## 📦 Installation
+Run this command? [Y/n]:
+```
 
-**Prerequisite:** You must have [Python 3.9+](https://www.python.org/downloads/) installed.
+---
 
-### macOS & Linux
-Paste this snippet into your terminal to auto-install `pipx`, `ollama`, pull the required language model, and build `hey-cli` natively.
+## Features
+
+- **100% Local & Private** — All reasoning happens on your machine via Ollama. No API keys, no cloud, no telemetry.
+- **Cross-Platform Intelligence** — Detects your OS (macOS/Linux/Windows) and generates the correct flags. Won't suggest `xargs -d` on BSD or `apt` on Arch.
+- **Agentic Context Gathering** — Ask "is Docker running?" and `hey` silently runs diagnostics, reads the output, and answers in plain English.
+- **Security Governance** — Dangerous commands (`rm -rf`, `mkfs`, `DROP TABLE`) are intercepted and require explicit confirmation before execution.
+- **Pipe-Friendly** — Pipe error logs directly: `npm run build 2>&1 | hey what is causing this error?`
+- **Conversational Memory** — Remembers your recent interactions for follow-up questions.
+
+---
+
+## Installation
+
+`hey` requires [Ollama](https://ollama.com) running locally. Install it first, then choose your platform:
+
+### macOS (Homebrew)
+
+```bash
+brew tap sinsniwal/hey-cli
+brew install hey-cli
+```
+
+### macOS & Linux (curl)
+
 ```bash
 curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh | bash
 ```
 
-### Windows (PowerShell)
-Paste this into your PowerShell terminal:
+### Windows (Scoop)
+
+```powershell
+scoop install https://raw.githubusercontent.com/sinsniwal/hey-cli/main/scoop/hey-cli.json
+```
+
+### Windows (PowerShell Installer)
+
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.ps1" -OutFile "$env:TEMP\hey_install.ps1"; & "$env:TEMP\hey_install.ps1"
 ```
 
-## 🛠️ Usage
+### Windows (Standalone Binary)
 
-Simply type `hey` followed by your objective.
+Download `hey.exe` from the [latest release](https://github.com/sinsniwal/hey-cli/releases/latest). No Python required.
 
-**Context-Gathering (Zero-Trust)**
+### pip / pipx
+
 ```bash
-hey is my docker hub running?
-```
-*`hey` will silently run `systemctl is-active docker` or `docker info`, see that it failed to connect to the socket, and explain the situation.*
-
-**Execution (Governance Protected)**
-```bash
-hey forcefully delete all .pyc files
-```
-*`hey` parses the generated `find . -name "*.pyc" -exec rm -f {} +` command, detects `rm` and `-exec` triggers, and pauses execution until you explicitly type `rm` to authorize.*
-
-**Debugging Logs**
-```bash
-npm run build 2>&1 | hey what is causing this webpack error?
+pipx install hey-cli-python
 ```
 
-## 🛡️ Governance Matrix
-Safety is a first-class citizen. `hey-cli` maintains a local governance database (`~/.hey-rules.json`):
-- **Never List**: Things like `rm -rf /` and `mkfs` are permanently blocked at the compiler level.
-- **Explicit Confirm**: High-risk ops (`truncate`, `drop`, `rm`) require typing exact keyword verification.
-- **Y/N Confirm**: Moderate risk ops requiring a quick `y`.
-- **Allowed List**: Safe diagnostics like `cat`, `ls`, `grep` auto-run natively.
+> **Note:** After installation, pull the default model: `ollama pull gpt-oss:20b-cloud`
 
-## 🤝 Adding OS Skills
-Is `hey` generating incorrect shell semantics for your niche operating system? 
+---
 
-You can make it permanently smarter without touching code! Simply open `hey_cli/skills/` and create a markdown file for your OS containing explicit English instructions (e.g. "Do not use apt on Alpine, use apk add"). The engine dynamically parses `.md` rulesites at runtime. Pull requests are heavily welcomed!
+## Usage
+
+```bash
+hey <your objective in plain English>
+```
+
+### Examples
+
+| Command | What happens |
+|---------|-------------|
+| `hey list all running docker containers` | Generates and runs `docker ps` |
+| `hey is port 8080 in use?` | Silently runs `lsof -i :8080`, reads output, answers in English |
+| `hey forcefully delete all .pyc files` | Generates `find . -name "*.pyc" -delete`, pauses for confirmation |
+| `hey compress this folder into a tar.gz` | Generates the correct `tar` command for your OS |
+| `npm run build 2>&1 \| hey what broke?` | Reads piped stderr and explains the error |
+| `hey --clear` | Wipes conversational memory |
+
+### Execution Levels
+
+| Level | Flag | Behavior |
+|-------|------|----------|
+| 0 | `--level 0` | Dry-run — shows the command but never executes |
+| 1 | *(default)* | Supervised — safe commands auto-run, risky ones ask for confirmation |
+| 2 | `--level 2` | Unrestricted — executes everything without confirmation |
+| 3 | `--level 3` | Troubleshooter — iteratively debugs until the objective is resolved |
+
+---
+
+## Security
+
+Safety is enforced at runtime via a local governance engine (`~/.hey-rules.json`):
+
+- **Blocked** — `rm -rf /`, `mkfs`, `:(){ :|:& };:` are permanently rejected.
+- **Explicit Confirm** — High-risk operations (`rm`, `truncate`, `DROP`) require typing a keyword to authorize.
+- **Y/N Confirm** — Moderate-risk operations require a quick `y`.
+- **Auto-Run** — Safe diagnostics (`ls`, `cat`, `grep`, `git status`) execute immediately.
+
+Initialize or customize your rules:
+
+```bash
+hey --init
+```
+
+---
+
+## OS Skills
+
+`hey` ships with built-in knowledge for macOS, Ubuntu/Debian, Arch Linux, Fedora/RHEL, Windows PowerShell, FreeBSD, and ChromeOS.
+
+**Want to improve it for your OS?** Add a Markdown file to `hey_cli/skills/` with plain-English rules (e.g., "On Alpine, use `apk add` instead of `apt install`"). The engine loads them dynamically at runtime.
+
+Pull requests for new OS skills are welcome!
+
+---
+
+## Architecture
+
+```
+hey "your question"
+    │
+    ▼
+┌──────────────┐     ┌──────────────────┐
+│  CLI Parser  │────▶│ Governance Check │
+└──────────────┘     └────────┬─────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │  Ollama (local LLM)│
+                    │  localhost:11434   │
+                    └─────────┬──────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │  Command Runner    │
+                    │  (execute / confirm)│
+                    └────────────────────┘
+```
+
+- **Zero external API calls** — communicates with Ollama via `localhost:11434` using Python's built-in `urllib`.
+- **Zero compiled dependencies** — the only runtime dependency is `rich` (for terminal formatting).
+- **Pure Python 3.9–3.14** — no C extensions, no Rust, no build tools required.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit changes: `git commit -m "feat: add my feature"`
+4. Push and open a Pull Request
+
+See [RELEASING.md](RELEASING.md) for maintainer release instructions.
+
+---
+
+## License
+
+[MIT](LICENSE) — Mohit Singh Sinsniwal

@@ -50,7 +50,18 @@ try {
     Exit 1
 }
 
-# 4. Pull Default Model
+# 4. Authenticate with Ollama
+Write-Host ""
+Write-Host "Authenticating with Ollama..." -ForegroundColor Cyan
+Write-Host "If prompted, sign in with your Ollama account."
+try {
+    & ollama login
+    Write-Host "[OK] Authentication complete." -ForegroundColor Green
+} catch {
+    Write-Host "[WARNING] Authentication skipped. You may see 401 errors if your Ollama instance requires auth." -ForegroundColor Yellow
+}
+
+# 5. Pull Default Model
 Write-Host ""
 Write-Host "Pulling default language model ($ModelName)..." -ForegroundColor Cyan
 Write-Host "This may take several minutes depending on your network..." -ForegroundColor Gray
@@ -60,7 +71,7 @@ try {
     Write-Host "[WARNING] Could not pull $ModelName. Ensure Ollama is running in your system tray." -ForegroundColor Red
 }
 
-# 5. Install hey-cli
+# 6. Install hey-cli
 Write-Host ""
 Write-Host "Installing hey-cli-python..." -ForegroundColor Cyan
 & pipx install hey-cli-python --force

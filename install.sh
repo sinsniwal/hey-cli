@@ -61,13 +61,19 @@ else
     echo -e "✔️  Ollama found."
 fi
 
-# 4. Pull Default Model
+# 4. Authenticate with Ollama
+echo -e "\n${BLUE}Authenticating with Ollama...${NC}"
+echo -e "If prompted, sign in with your Ollama account."
+ollama login || echo -e "${RED}Warning: Authentication skipped. You may see 401 errors if your Ollama instance requires auth.${NC}"
+echo -e "✔️  Authentication complete."
+
+# 5. Pull Default Model
 MODEL="gpt-oss:20b-cloud"
 echo -e "\n${BLUE}Pulling default language model ($MODEL). This may take several minutes depending on your network...${NC}"
 # We append || true so the script doesn't crash if the daemon isn't fully booted
 ollama pull "$MODEL" || echo -e "${RED}Warning: Could not pull $MODEL. Ensure 'ollama serve' is running in the background.${NC}"
 
-# 5. Install hey-cli
+# 6. Install hey-cli
 echo -e "\n${BLUE}Installing hey-cli-python...${NC}"
 pipx install hey-cli-python --force
 

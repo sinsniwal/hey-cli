@@ -22,7 +22,13 @@ if ! command -v pipx &> /dev/null; then
     OS="$(uname -s)"
     if [ "$OS" = "Darwin" ]; then
         if command -v brew &> /dev/null; then
-            brew install pipx
+            # Detect if we're on Apple Silicon but running under Rosetta 2
+            if [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+                echo -e "${BLUE}Detected Rosetta 2 emulation. Forcing native ARM installation...${NC}"
+                arch -arm64 brew install pipx
+            else
+                brew install pipx
+            fi
         else
             echo -e "${RED}Homebrew not found. Please install pipx manually: https://pipx.pypa.io/stable/installation/${NC}"
             exit 1
@@ -103,7 +109,11 @@ ollama pull "$MODEL" || echo -e "${RED}Warning: Could not pull $MODEL. Ensure 'o
 
 # 6. Install hey-cli
 echo -e "\n${BLUE}Installing hey-cli-python...${NC}"
-pipx install hey-cli-python --force
+if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+    arch -arm64 pipx install hey-cli-python --force
+else
+    pipx install hey-cli-python --force
+fi
 
 echo -e "\n${GREEN}============ SUCCESS =============${NC}"
 echo -e "hey-cli is successfully installed!"

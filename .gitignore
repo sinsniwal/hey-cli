@@ -1,0 +1,55 @@
+# Python environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment variables
+.env
+.env.local
+
+# Testing
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+os_test_cases.md
+500_prompts.txt
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS config
+.DS_Store
+Thumbs.db
+
+# Any local configurations for hey
+.hey-history.json
+.hey-rules.json
+
+# Internal developer logic
+local_files/

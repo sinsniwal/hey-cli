@@ -99,16 +99,98 @@
             <div class="install-container">
                 <h2>Get Started in Seconds</h2>
                 <div class="install-tabs">
-                    <button class="tab-btn active" onclick="switchInstall('uv')">uv</button>
-                    <button class="tab-btn" onclick="switchInstall('brew')">Homebrew</button>
-                    <button class="tab-btn" onclick="switchInstall('curl')">curl</button>
-                    <button class="tab-btn" onclick="switchInstall('scoop')">Scoop</button>
+                    <button class="tab-btn active" data-platform="macos"><i data-lucide="apple"></i> macOS</button>
+                    <button class="tab-btn" data-platform="linux"><i data-lucide="cpu"></i> Linux</button>
+                    <button class="tab-btn" data-platform="windows"><i data-lucide="laptop"></i> Windows</button>
                 </div>
-                <div class="command-box">
-                    <code id="install-command">uv tool install hey-cli-python</code>
-                    <button class="copy-btn" onclick="copyCommand()">
-                        <i data-lucide="copy" id="copy-icon"></i>
-                    </button>
+
+                <div class="install-content">
+                    <!-- macOS Panel -->
+                    <div id="macos-panel" class="platform-panel active">
+                        <div class="install-method">
+                            <h4>Method 1: Homebrew (Recommended)</h4>
+                            <div class="command-box">
+                                <code>brew install sinsniwal/hey-cli/hey-cli</code>
+                                <button class="copy-btn" data-copy="brew install sinsniwal/hey-cli/hey-cli">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="install-method">
+                            <h4>Method 2: One-Liner</h4>
+                            <div class="command-box">
+                                <code>curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh | bash</code>
+                                <button class="copy-btn" data-copy="curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh | bash">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="download-actions">
+                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-macos-arm64" class="btn-download">
+                                <i data-lucide="download"></i> Download for Apple Silicon
+                            </a>
+                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-macos-x86_64" class="btn-download secondary">
+                                <i data-lucide="download"></i> Intel Mac
+                            </a>
+                        </div>
+                        <div class="tip-box">
+                            <strong>Note:</strong> macOS users may need to allow the binary in <strong>System Settings > Security & Privacy</strong> after downloading.
+                        </div>
+                    </div>
+
+                    <!-- Linux Panel -->
+                    <div id="linux-panel" class="platform-panel">
+                        <div class="install-method">
+                            <h4>Method 1: Universal Script</h4>
+                            <div class="command-box">
+                                <code>curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh | bash</code>
+                                <button class="copy-btn" data-copy="curl -sL https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.sh | bash">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="install-method">
+                            <h4>Method 2: uv tool</h4>
+                            <div class="command-box">
+                                <code>uv tool install hey-cli-python</code>
+                                <button class="copy-btn" data-copy="uv tool install hey-cli-python">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="download-actions">
+                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey-linux-x86_64" class="btn-download">
+                                <i data-lucide="download"></i> Download Linux Binary
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Windows Panel -->
+                    <div id="windows-panel" class="platform-panel">
+                        <div class="install-method">
+                            <h4>Method 1: Scoop</h4>
+                            <div class="command-box">
+                                <code>scoop install https://raw.githubusercontent.com/sinsniwal/hey-cli/main/scoop/hey-cli.json</code>
+                                <button class="copy-btn" data-copy="scoop install https://raw.githubusercontent.com/sinsniwal/hey-cli/main/scoop/hey-cli.json">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="install-method">
+                            <h4>Method 2: PowerShell One-Liner</h4>
+                            <div class="command-box">
+                                <code>Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.ps1" -OutFile "$env:TEMP\hey_install.ps1"; & "$env:TEMP\hey_install.ps1"</code>
+                                <button class="copy-btn" data-copy="Invoke-WebRequest -Uri &quot;https://raw.githubusercontent.com/sinsniwal/hey-cli/main/install.ps1&quot; -OutFile &quot;$env:TEMP\hey_install.ps1&quot;; &amp; &quot;$env:TEMP\hey_install.ps1&quot;">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="download-actions">
+                            <a href="https://github.com/sinsniwal/hey-cli/releases/latest/download/hey.exe" class="btn-download">
+                                <i data-lucide="download"></i> Download hey.exe
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

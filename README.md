@@ -14,8 +14,7 @@
 `hey` is a terminal-native AI assistant that translates plain English into executable shell commands using a locally-hosted LLM via [Ollama](https://ollama.com). Your data never leaves your machine.
 
 <div align="center">
-  <video src="assets/demo.mp4" width="800" controls autoplay loop muted>
-    Your browser does not support the video tag.
+  <video src="https://github.com/sinsniwal/hey-cli/raw/main/assets/demo.mp4" width="800" controls autoplay loop muted>
   </video>
 </div>
 

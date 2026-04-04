@@ -85,7 +85,7 @@ def generate_command(prompt: str, context: str = "", model_name: str = DEFAULT_M
             data = json.loads(content_str)
             return CommandResponse(**data)
             
-        except urllib.error.URLError:
+        except (urllib.error.URLError, ConnectionError, OSError):
             raise  # Ollama not reachable — don't retry, bubble up to cli
         except Exception as e:
             last_error = e
@@ -152,7 +152,7 @@ def generate_troubleshoot_step(objective: str, history: list, model_name: str = 
             data = json.loads(content_str)
             return TroubleshootResponse(**data)
             
-        except urllib.error.URLError:
+        except (urllib.error.URLError, ConnectionError, OSError):
             raise  # Ollama not reachable — don't retry, bubble up to cli
         except Exception as e:
             last_error = e

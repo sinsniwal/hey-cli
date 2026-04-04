@@ -95,8 +95,9 @@ def main():
     past_messages = history_mgr.load()
     try:
         response = generate_command(objective, context=piped_data, model_name=model_name, history=past_messages)
-    except urllib.error.URLError:
-        check_ollama()  # always fails here — shows the panel and exits
+    except (urllib.error.URLError, ConnectionError, OSError):
+        check_ollama()  # shows the panel and exits
+        sys.exit(1)     # fallback — should never reach here
     
     # Save the user query to history IMMEDIATELY
     history_mgr.append("user", user_prompt)

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hey-cli | Your Terminal Buddy</title>
+    <meta name="description" content="A secure, zero-bloat CLI companion that turns plain English into shell scripts. No cloud, no API keys, 100% private.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Navbar -->
+        <nav>
+            <div class="logo">
+                <i data-lucide="terminal"></i> hey-<span>cli</span>
+            </div>
+            <a href="https://github.com/sinsniwal/hey-cli" class="github-link">
+                <i data-lucide="github"></i> GitHub
+            </a>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>English in, Shell out.</h1>
+            <p>A secure, zero-bloat CLI companion that turns natural language and error logs into executable commands. 100% private and locally-hosted.</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                </div>
+                <div class="terminal-content">
+                    <img src="https://github.com/sinsniwal/hey-cli/raw/main/assets/demo.gif" alt="hey-cli demo animation">
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+            <div class="feature-card">
+                <h3><i data-lucide="shield-check"></i> 100% Local</h3>
+                <p>All reasoning happens on your machine via Ollama. No API keys, no telemetry, and your data never leaves your shell.</p>
+            </div>
+            <div class="feature-card">
+                <h3><i data-lucide="monitor"></i> OS Aware</h3>
+                <p>Detects macOS, Linux, and Windows natively. Generates the correct flags for your specific shell and package manager.</p>
+            </div>
+            <div class="feature-card">
+                <h3><i data-lucide="lock"></i> Secure Governance</h3>
+                <p>Dangerous commands are intercepted by the Built-in Governance Engine, requiring explicit confirmation before execution.</p>
+            </div>
+        </section>
+
+        <!-- Install Section -->
+        <section class="install-section">
+            <div class="install-container">
+                <h2>Get Started in Seconds</h2>
+                <div class="install-tabs">
+                    <button class="tab-btn active" onclick="switchInstall('uv')">uv</button>
+                    <button class="tab-btn" onclick="switchInstall('brew')">Homebrew</button>
+                    <button class="tab-btn" onclick="switchInstall('curl')">curl</button>
+                    <button class="tab-btn" onclick="switchInstall('scoop')">Scoop</button>
+                </div>
+                <div class="command-box">
+                    <code id="install-command">uv tool install hey-cli-python</code>
+                    <button class="copy-btn" onclick="copyCommand()">
+                        <i data-lucide="copy" id="copy-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 Mohit Singh Sinsniwal. Licensed under MIT.</p>
+            <p>Made with &hearts; for the Open Source community.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

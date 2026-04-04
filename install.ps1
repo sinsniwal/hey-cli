@@ -53,8 +53,8 @@ try {
 }
 
 # 5. Install hey-cli
-Write-Host "`nInstalling hey-cli..." -ForegroundColor Cyan
-& pipx install git+https://github.com/sinsniwal/hey-cli.git --force
+Write-Host "`nInstalling hey-cli-python..." -ForegroundColor Cyan
+& pipx install hey-cli-python --force
 
 Write-Host "`n============ SUCCESS =============" -ForegroundColor Green
 Write-Host "hey-cli is successfully installed!"

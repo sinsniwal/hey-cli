@@ -68,8 +68,8 @@ echo -e "\n${BLUE}Pulling default language model ($MODEL). This may take several
 ollama pull "$MODEL" || echo -e "${RED}Warning: Could not pull $MODEL. Ensure 'ollama serve' is running in the background.${NC}"
 
 # 5. Install hey-cli
-echo -e "\n${BLUE}Installing hey-cli...${NC}"
-pipx install git+https://github.com/sinsniwal/hey-cli.git --force
+echo -e "\n${BLUE}Installing hey-cli-python...${NC}"
+pipx install hey-cli-python --force
 
 echo -e "\n${GREEN}============ SUCCESS =============${NC}"
 echo -e "hey-cli is successfully installed!"

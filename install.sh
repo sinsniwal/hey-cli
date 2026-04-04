@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+{ # Wrap the entire script in a block to prevent stdin consumption issues with curl | bash
+
 set -e
 
 RED='\033[0;31m'
@@ -16,7 +18,8 @@ if [ "$(uname -s)" = "Darwin" ]; then
     fi
 fi
 
-# 1. Check Python
+echo -e "${BLUE}Welcome to the hey-cli cross-platform installer!${NC}"
+echo -e "This script will setup Python, pipx, Ollama, and explicitly build hey-cli locally.\n"
 
 # 1. Check Python
 if ! command -v python3 &> /dev/null; then
@@ -50,7 +53,7 @@ if ! command -v pipx &> /dev/null; then
              exit 1
         fi
     fi
-    pipx ensurepath
+    pipx ensurepath --force
 else
     echo -e "✔️  pipx found."
 fi
@@ -121,4 +124,6 @@ fi
 echo -e "\n${GREEN}============ SUCCESS =============${NC}"
 echo -e "hey-cli is successfully installed!"
 echo -e "You may need to restart your terminal or run ${BLUE}source ~/.bashrc${NC} (or .zshrc) for the 'hey' command to be recognized."
-echo -e "Test it out by typing: ${BLUE}hey is my docker hub running?${NC}"
+echo -e "Test it out by typing: ${BLUE}hey hi${NC}"
+
+} # End of script block

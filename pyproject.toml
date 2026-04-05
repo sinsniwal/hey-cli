@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hey-cli-python"
-version = "1.1.0"
+version = "1.1.1"
 description = "A secure, zero-bloat CLI companion that turns natural language and error logs into executable commands."
 readme = "README.md"
 requires-python = ">=3.9"

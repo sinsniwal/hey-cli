@@ -108,7 +108,25 @@ hey <your objective in plain English>
 | `npm run build 2>&1 \| hey what broke?`  | Reads piped stderr and explains the error                         |
 | `hey --clear`                            | Wipes conversational memory                                       |
 
-### Execution Levels
+---
+
+## Shell Integration (Recommended)
+
+By default, CLI tools cannot change your terminal's directory because they run in a subshell. To enable `hey` to change your directory (e.g., `hey go to desktop`), add the following to your shell configuration (`~/.zshrc` or `~/.bashrc`):
+
+```bash
+eval "$(hey --shell-init)"
+```
+
+**For Windows (PowerShell):**
+
+```powershell
+hey --shell-init | Out-String | iex
+```
+
+---
+
+## Execution Levels
 
 | Level | Flag        | Behavior                                                             |
 | ----- | ----------- | -------------------------------------------------------------------- |

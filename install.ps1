@@ -123,4 +123,35 @@ Write-Host "============ SUCCESS =============" -ForegroundColor Green
 Write-Host "hey-cli is successfully installed!"
 Write-Host "You may need to restart your PowerShell window for the 'hey' command to be recognized."
 Write-Host "Test it out by typing: " -NoNewline
-Write-Host "hey is docker running" -ForegroundColor Cyan
+Write-Host "hey hi" -ForegroundColor Cyan
+Write-Host ""
+
+# 7. Automated Shell Integration
+if ($null -ne $PROFILE) {
+    Write-Host "Would you like to enable directory persistence (making 'cd' work)? [y/N]" -ForegroundColor Yellow
+    $confirm = Read-Host "> "
+    if ($confirm -match "^[Yy]$") {
+        # Ensure profile directory exists
+        $profileDir = Split-Path -Path $PROFILE
+        if (!(Test-Path $profileDir)) {
+             New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+        }
+        # Ensure profile file exists
+        if (!(Test-Path $PROFILE)) {
+             New-Item -ItemType File -Path $PROFILE -Force | Out-Null
+        }
+        
+        $initLine = "hey --shell-init | Out-String | iex"
+        if (!(Select-String -Path $PROFILE -Pattern "hey --shell-init" -Quiet)) {
+            Add-Content -Path $PROFILE -Value "`n# hey-cli shell integration`n$initLine"
+            Write-Host "[OK] Added shell integration to $PROFILE. Please restart PowerShell." -ForegroundColor Green
+        } else {
+            Write-Host "[OK] Shell integration already exists in $PROFILE." -ForegroundColor Green
+        }
+    } else {
+        Write-Host "Skipping shell integration. You can always add it later manually." -ForegroundColor Gray
+    }
+} else {
+    Write-Host "Tip: To enable 'cd' persistence, add this to your PowerShell profile:" -ForegroundColor Yellow
+    Write-Host "hey --shell-init | Out-String | iex" -ForegroundColor Cyan
+}

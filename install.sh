@@ -6,6 +6,7 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # 0. Detect Architecture for macOS
@@ -109,6 +110,36 @@ fi
 echo -e "\n${GREEN}============ SUCCESS =============${NC}"
 echo -e "hey-cli is successfully installed!"
 echo -e "You may need to restart your terminal or run ${BLUE}source ~/.bashrc${NC} (or .zshrc) for the 'hey' command to be recognized."
-echo -e "Test it out by typing: ${BLUE}hey hi${NC}"
+echo -e "Test it out by typing: ${BLUE}hey hi${NC}\n"
+
+# 7. Automated Shell Integration
+SHELL_TYPE=$(basename "$SHELL")
+PROFILE=""
+case "$SHELL_TYPE" in
+    zsh)  PROFILE="$HOME/.zshrc" ;;
+    bash) PROFILE="$HOME/.bashrc" ;;
+    *)    PROFILE="" ;;
+esac
+
+if [ -n "$PROFILE" ]; then
+    echo -e "${YELLOW}Would you like to enable directory persistence (making 'cd' work)? [y/N]${NC}"
+    # Use read with a timeout or just skip if non-interactive
+    if [[ -t 0 ]]; then
+        read -r -p "> " CONFIRM
+        if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+            if grep -q "hey --shell-init" "$PROFILE" 2>/dev/null; then
+                echo -e "✔️  Shell integration already exists in $PROFILE"
+            else
+                echo -e "\n# hey-cli shell integration\neval \"\$(hey --shell-init)\"" >> "$PROFILE"
+                echo -e "${GREEN}✔️  Added shell integration to $PROFILE. Please restart your terminal or run: source $PROFILE${NC}"
+            fi
+        else
+             echo -e "${BLUE}Skipping shell integration. You can always add it later manually.${NC}"
+        fi
+    fi
+else
+    echo -e "${YELLOW}Tip: To enable 'cd' persistence, add this to your shell profile:${NC}"
+    echo -e "${BLUE}eval \"\$(hey --shell-init)\"${NC}"
+fi
 
 } # End of script block

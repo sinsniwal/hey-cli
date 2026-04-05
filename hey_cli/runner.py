@@ -2,6 +2,9 @@ import subprocess
 import sys
 import json
 import dataclasses
+import os
+import platform
+import re
 from typing import Optional
 
 from .governance import GovernanceEngine, Action
@@ -17,17 +20,44 @@ class CommandRunner:
         self.history_mgr = history_mgr
         self.console = Console()
 
-    def run_command(self, cmd: str) -> tuple[int, str]:
+    def run_command(self, cmd: str, capture_pwd: bool = False) -> tuple[int, str]:
         """Executes a command and returns exit code and combined output."""
+        is_windows = platform.system() == "Windows"
         try:
+            full_cmd = cmd
+            if capture_pwd:
+                if is_windows:
+                    # Windows CMD syntax for capturing PWD
+                    full_cmd = f'("{cmd}") & echo. & echo HEY_CWD_HANDOFF:%CD%'
+                else:
+                    # Unix shell syntax
+                    full_cmd = f'{{ {cmd} ; }} ; printf "\\nHEY_CWD_HANDOFF:%s\\n" "$(pwd)"'
+            
             result = subprocess.run(
-                cmd, 
+                full_cmd, 
                 shell=True, 
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.STDOUT, 
                 text=True
             )
-            return result.returncode, result.stdout
+            
+            out = result.stdout
+            if capture_pwd and "HEY_CWD_HANDOFF:" in out:
+                match = re.search(r"HEY_CWD_HANDOFF:(.*)", out)
+                if match:
+                    cwd = match.group(1).strip()
+                    # Clean up output to hide the marker and the extra newline
+                    out = re.sub(r"\n?HEY_CWD_HANDOFF:.*", "", out, flags=re.DOTALL).strip()
+                    
+                    # Normalize paths for comparison (especially on Windows)
+                    norm_cwd = os.path.normpath(cwd).lower() if is_windows else os.path.normpath(cwd)
+                    norm_actual = os.path.normpath(os.getcwd()).lower() if is_windows else os.path.normpath(os.getcwd())
+                    
+                    if norm_cwd != norm_actual:
+                        with open(os.path.expanduser("~/.hey_cwd_handoff"), "w") as f:
+                            f.write(cwd)
+            
+            return result.returncode, out
         except Exception as e:
             return -1, str(e)
 
@@ -146,7 +176,7 @@ class CommandRunner:
         if self.level in (1, 2):
             if self._check_governance(cmd):
                 self.console.print(f"[bold green]● Running:[/bold green] {cmd}")
-                code, out = self.run_command(cmd)
+                code, out = self.run_command(cmd, capture_pwd=True)
                 if out.strip():
                     print(out.strip())
                 sys.exit(code)

@@ -21,7 +21,7 @@ DEFAULT_RULES = {
         "kubectl delete"
     ],
     "allowed": [
-        "ls", "cat", "pwd", "grep", "find", "echo", "tail"
+        "ls", "cat", "pwd", "grep", "find", "echo", "tail", "cd"
     ],
     "high_risk_keywords": [
         "reset", "delete", "drop", "truncate", "prune", "rm", "-exec", ">"

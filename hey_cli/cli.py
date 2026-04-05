@@ -68,6 +68,9 @@ def main():
     parser.add_argument(
         "--check-cache", type=str, help="Check local cache for instant fix"
     )
+    parser.add_argument(
+        "--shell-init", action="store_true", help="Output shell function for directory persistence"
+    )
 
     args = parser.parse_args()
 
@@ -93,6 +96,36 @@ def main():
         sys.exit(0)
 
     if args.check_cache:
+        sys.exit(0)
+
+    if args.shell_init:
+        is_windows = os.name == "nt"
+        if is_windows:
+            shell_func = r"""
+function hey {
+    & hey.exe @args
+    $handoff = Join-Path $HOME ".hey_cwd_handoff"
+    if (Test-Path $handoff) {
+        $target = Get-Content $handoff -Raw
+        Remove-Item $handoff
+        if (Test-Path $target.Trim()) {
+            Set-Location $target.Trim()
+        }
+    }
+}
+"""
+        else:
+            shell_func = r"""
+hey() {
+    command hey "$@"
+    if [ -f "$HOME/.hey_cwd_handoff" ]; then
+        local target=$(cat "$HOME/.hey_cwd_handoff")
+        rm -f "$HOME/.hey_cwd_handoff"
+        [ -d "$target" ] && cd "$target"
+    fi
+}
+"""
+        print(shell_func.strip())
         sys.exit(0)
 
     # Only check Ollama when we're about to call the LLM

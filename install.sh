@@ -101,10 +101,17 @@ ollama pull "$MODEL" || echo -e "${RED}Warning: Could not pull $MODEL. Ensure 'o
 
 # 6. Install hey-cli
 echo -e "\n${BLUE}Installing hey-cli-python...${NC}"
+# Use the local package if we're running from within the repository
+INSTALL_TARGET="hey-cli-python"
+if [ -f "pyproject.toml" ]; then
+    INSTALL_TARGET="."
+    echo -e "💡 Detected local pyproject.toml. Installing from source..."
+fi
+
 if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "x86_64" ] && [ "$(sysctl -in sysctl.proc_translated 2>/dev/null)" = "1" ]; then
-    arch -arm64 uv tool install hey-cli-python --force
+    arch -arm64 uv tool install "$INSTALL_TARGET" --force
 else
-    uv tool install hey-cli-python --force
+    uv tool install "$INSTALL_TARGET" --force
 fi
 
 echo -e "\n${GREEN}============ SUCCESS =============${NC}"

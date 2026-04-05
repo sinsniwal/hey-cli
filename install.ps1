@@ -116,7 +116,13 @@ try {
 # 6. Install hey-cli
 Write-Host ""
 Write-Host "Installing hey-cli-python..." -ForegroundColor Cyan
-& uv tool install hey-cli-python --force
+$installTarget = "hey-cli-python"
+if (Test-Path "pyproject.toml") {
+    $installTarget = "."
+    Write-Host "Detected local pyproject.toml. Installing from source..." -ForegroundColor Gray
+}
+
+& uv tool install "$installTarget" --force
 
 Write-Host ""
 Write-Host "============ SUCCESS =============" -ForegroundColor Green

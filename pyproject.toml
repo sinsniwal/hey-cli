@@ -1,41 +1,27 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "hey-cli-python"
-version = "1.1.1"
-description = "A secure, zero-bloat CLI companion that turns natural language and error logs into executable commands."
+name = "hey-cli"
+version = "2.0.0"
+description = "Natural language to shell commands via TypeSafe AI"
 readme = "README.md"
-requires-python = ">=3.9"
-authors = [
-  {name = "Mohit Singh Sinsniwal"}
-]
-keywords = ["cli", "llm", "bash", "terminal", "ollama", "sysadmin"]
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: MacOS",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-]
+requires-python = ">=3.10"
 dependencies = [
-    "rich>=13.0.0"
+    "typesafe-sdk>=0.1.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
 ]
-urls.Homepage = "https://github.com/sinsniwal/hey-cli"
-urls.Repository = "https://github.com/sinsniwal/hey-cli"
-urls.Issues = "https://github.com/sinsniwal/hey-cli/issues"
 
 [project.scripts]
-hey = "hey_cli.cli:main"
+hey = "hey.cli:main"
 
-[tool.setuptools]
-packages = ["hey_cli"]
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["hey*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests that call the real TypeSafe API",
+]

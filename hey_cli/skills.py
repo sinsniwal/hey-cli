@@ -86,23 +86,24 @@ def _load_skill_file(filename: str) -> str:
 def get_compiled_skills() -> str:
     """
     Compiles a formatted string of applicable operational skills
-    based on host OS and distro. Always includes shell.md (universal).
+    based on host OS and distro.
     """
     os_name = platform.system()
-    
-    # Always load universal shell skills
     sections = []
-    shell_content = _load_skill_file("shell")
-    if shell_content:
-        sections.append(shell_content)
     
-    # Load OS-specific skills
-    os_files = OS_SKILL_MAP.get(os_name, [])
-    
-    # For Linux, detect the specific distro
-    if os_name == "Linux":
-        distro_file = _detect_linux_distro()
-        os_files = [distro_file]
+    # Load OS-specific files
+    os_files = []
+    if os_name == "Windows":
+        os_files = ["windows_powershell"]
+    else:
+        # For Unix-like systems, always include POSIX shell skills
+        os_files = ["posix_shell"]
+        if os_name == "Darwin":
+            os_files.append("darwin")
+        elif os_name == "Linux":
+            os_files.append(_detect_linux_distro())
+        elif os_name == "FreeBSD":
+            os_files.append("freebsd")
     
     for skill_file in os_files:
         content = _load_skill_file(skill_file)

@@ -1,24 +1,27 @@
 # Windows (PowerShell) Skills
 # PowerShell cmdlets, completely different syntax from Unix
 
-- Directory listing: `Get-ChildItem` (alias `dir`, `ls`).
+## Operational Heuristics
+- **Path Separation**: ALWAYS use backslashes `\` for paths. Do NOT use forward slashes.
+- **Docker Check**: `docker info > $null 2>&1; if ($?) { echo 'running' } else { echo 'not running' }` (Check if Docker is running via exit code).
+- **Process on Port**: `Get-NetTCPConnection -LocalPort <port>` (Equivalent to `lsof -i`).
+- **File Search (Content)**: `Select-String -Path .\*.txt -Pattern 'search_term' -Recursive` (Equivalent to `grep -r`).
+- **File Search (Filename)**: `Get-ChildItem -Path . -Filter *.log -Recurse` (Equivalent to `find . -name "*.log"`).
+- **IP Address**: `(Get-NetIPAddress -AddressFamily IPv4).IPAddress` (Clean IPv4 listing).
+- **Environment Variables**: Use `$env:VAR_NAME` to access and `$env:VAR_NAME = "value"` to set for session.
+- **Piping**: Remember that PowerShell pipes **objects**, not text. Use `Select-Object`, `Where-Object`, and `ForEach-Object` for filtering.
+- **Boolean Logic**: Use `-and`, `-or`, `-not`, `-eq`, `-ne`, `-lt`, `-gt` for comparisons.
+
+## Common Cmdlets
+- Directory listing: `Get-ChildItem` (alias `ls`, `dir`).
 - Change directory: `Set-Location` (alias `cd`).
-- Copy: `Copy-Item`. Move: `Move-Item`. Remove: `Remove-Item`.
 - Create directory: `New-Item -ItemType Directory -Name <name>`.
 - Create file: `New-Item -ItemType File -Name <name>`.
-- Search text: `Select-String -Path <file> -Pattern '<regex>'`, not `grep`.
-- IP address: `ipconfig`. Detailed: `Get-NetIPAddress`.
-- DNS flush: `ipconfig /flushdns`.
-- Process list: `Get-Process`. Kill: `Stop-Process -Id <pid>` or `Stop-Process -Name <name>`.
-- Process on port: `Get-NetTCPConnection -LocalPort <port>`.
-- Service management: `Get-Service`, `Start-Service`, `Stop-Service`, `Restart-Service`.
-- Package manager: `winget install <pkg>` or `choco install <pkg>` or `scoop install <pkg>`.
-- Download file: `Invoke-WebRequest -Uri <url> -OutFile <file>`.
-- Extract archive: `Expand-Archive -Path <file> -DestinationPath <dir>`.
-- Compress: `Compress-Archive -Path <source> -DestinationPath <dest>.zip`.
-- Open file/URL: `Start-Process <path_or_url>`.
-- Clipboard: `Set-Clipboard`, `Get-Clipboard`.
-- Environment variables: `$env:VARIABLE_NAME`. Set: `$env:VAR = "value"`.
-- Paths use backslash `\`, not forward slash `/`.
-- Piping works differently: PowerShell pipes objects, not text streams.
-- Use `Where-Object`, `ForEach-Object`, `Sort-Object` for filtering/processing.
+- Remove: `Remove-Item -Force -Recurse <path>`.
+- Download: `Invoke-WebRequest -Uri <url> -OutFile <file>`.
+- Extract: `Expand-Archive -Path <file> -DestinationPath <dir>`.
+- Process list: `Get-Process`. Kill: `Stop-Process -Id <pid>`.
+
+## Safety
+- Execution Policy: If a script fails to run, it may be blocked by `ExecutionPolicy`. Suggest `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` for the session.
+- Avoid `rm -rf` equivalents on system roots.

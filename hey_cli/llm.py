@@ -19,11 +19,11 @@ WARNING: Ensure any quotes inside your command (e.g. echo 'text') are single quo
 CRITICAL PARSING RULE: If the user provides a specific filename, directory name, string, or port, you MUST preserve it EXACTLY as written. Do not autocorrect spelling, abbreviate, or drop extensions (e.g., if asked to make 'temporarily', do not output 'temporay').
 
 IMPORTANT AGENTIC INSTRUCTION:
-If the user asks ANY question about their system state, files, or environment (e.g., "is docker running?", "what is my IP?", "explain this folder"), you MUST set `needs_context = true` and target a bash command to silently gather the data.
+If the user asks ANY question about their system state, files, or environment (e.g., "is docker running?", "what is my IP?", "explain this folder"), you MUST set `needs_context = true` and target a command for the current shell to silently gather the data.
 ONLY set `needs_context = false` when you are providing the FINAL answer. 
-If your final answer is an explanation or simply answering a question, leave the `command` field empty `""` and put a high-quality Markdown response in the `explanation` field. Do NOT write bash `echo` or `printf` statements.
-If your final answer requires an action to be ran (e.g., "start docker", "delete the folder"), put the executable bash string in `command`.
-CRITICAL JSON REQUIREMENT: If your bash command contains any backslashes (e.g. for regex like `\.` or escaping spaces), you MUST double-escape them (`\\\\.`) so the output remains valid JSON!
+If your final answer is an explanation or simply answering a question, leave the `command` field empty `""` and put a high-quality Markdown response in the `explanation` field. Do NOT write echo or printf statements.
+If your final answer requires an action to be ran (e.g., "start docker", "delete the folder"), put the executable string for the current shell in `command`.
+CRITICAL JSON REQUIREMENT: If your command contains any backslashes (e.g. for regex like `\.` or escaping spaces), you MUST double-escape them (`\\\\.`) so the output remains valid JSON!
 """
 
 from .skills import get_compiled_skills
@@ -33,7 +33,16 @@ def get_system_context() -> str:
     os_name = platform.system()
     os_release = platform.release()
     arch = platform.machine()
-    shell = os.environ.get("SHELL", "unknown")
+    
+    # Improve shell detection for Windows
+    if os_name == "Windows":
+        # Check for PowerShell specific environment variables
+        if os.environ.get("PSModulePath"):
+            shell = "PowerShell"
+        else:
+            shell = os.environ.get("COMSPEC", "CMD.exe")
+    else:
+        shell = os.environ.get("SHELL", "unknown")
 
     skills_block = f"\n\n{get_compiled_skills()}"
 

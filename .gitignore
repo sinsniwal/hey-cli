@@ -53,3 +53,12 @@ Thumbs.db
 
 # Internal developer logic
 local_files/
+
+# Auto-added ignore rules
+.env.*
+*.env
+*.pem
+*.key
+secrets.toml
+client_secrets*.json
+node_modules/

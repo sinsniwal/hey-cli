@@ -14,6 +14,7 @@ from rich.text import Text
 
 console = Console()
 
+
 def check_ollama():
     """Check if Ollama is reachable at localhost:11434. Exit with instructions if not."""
     try:
@@ -23,50 +24,70 @@ def check_ollama():
         msg.append("Ollama is not running or not installed.\n\n", style="bold red")
         msg.append("Install Ollama:\n", style="bold white")
         msg.append("  Linux / macOS:\n", style="dim")
-        msg.append("    curl -fsSL https://ollama.com/install.sh | sh\n", style="bold cyan")
+        msg.append(
+            "    curl -fsSL https://ollama.com/install.sh | sh\n", style="bold cyan"
+        )
         msg.append("  Windows:\n", style="dim")
         msg.append("    https://ollama.com/download/windows\n\n", style="bold cyan")
         msg.append("Then pull the default model:\n", style="bold white")
         msg.append("    ollama pull gpt-oss:20b-cloud", style="bold cyan")
-        console.print(Panel(msg, title="[bold yellow]⚠  Ollama Required[/bold yellow]", border_style="yellow"))
+        console.print(
+            Panel(
+                msg,
+                title="[bold yellow]⚠  Ollama Required[/bold yellow]",
+                border_style="yellow",
+            )
+        )
         sys.exit(1)
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="hey-cli: a secure, zero-bloat CLI companion.",
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
-    
+
     parser.add_argument("objective", nargs="*", help="Goal or task description")
-    parser.add_argument("--level", type=int, choices=[0, 1, 2, 3], default=None,
-                        help="0: Dry-Run\n1: Supervised (Default)\n2: Unrestricted (Danger)\n3: Troubleshooter")
-    parser.add_argument("--init", action="store_true", help="Initialize ~/.hey-rules.json")
-    parser.add_argument("--clear", action="store_true", help="Clear conversational memory history")
-    parser.add_argument("--check-cache", type=str, help="Check local cache for instant fix")
-    
+    parser.add_argument(
+        "--level",
+        type=int,
+        choices=[0, 1, 2, 3],
+        default=None,
+        help="0: Dry-Run\n1: Supervised (Default)\n2: Unrestricted (Danger)\n3: Troubleshooter",
+    )
+    parser.add_argument(
+        "--init", action="store_true", help="Initialize ~/.hey-rules.json"
+    )
+    parser.add_argument(
+        "--clear", action="store_true", help="Clear conversational memory history"
+    )
+    parser.add_argument(
+        "--check-cache", type=str, help="Check local cache for instant fix"
+    )
+
     args = parser.parse_args()
-    
+
     gov = GovernanceEngine()
     history_mgr = HistoryManager()
-    
+
     if args.clear:
         history_mgr.clear()
         console.print("[dim]Conversational history wiped clean.[/dim]")
         sys.exit(0)
-    
+
     active_level = args.level
     if active_level is None:
         active_level = gov.rules.get("config", {}).get("default_level", 1)
-        
+
     model_name = gov.rules.get("config", {}).get("model", "gpt-oss:20b-cloud")
-    
+
     if args.init:
         if gov.init_rules():
             console.print(f"Initialized security rules at {gov.rules_path}")
         else:
             console.print(f"Rules already exist at {gov.rules_path}")
         sys.exit(0)
-        
+
     if args.check_cache:
         sys.exit(0)
 
@@ -77,7 +98,7 @@ def main():
     if not sys.stdin.isatty():
         try:
             piped_data = sys.stdin.read()
-            sys.stdin = open('/dev/tty')
+            sys.stdin = open("/dev/tty")
         except Exception:
             pass
 
@@ -85,25 +106,50 @@ def main():
     if not objective and not piped_data:
         parser.print_help()
         sys.exit(1)
-        
+
     # Build complete user message for saving later
     user_prompt = objective
     if piped_data:
         user_prompt += f"\n\n[Piped Data]:\n{piped_data}"
-        
+
     console.print("[bold yellow]●[/bold yellow] Thinking...")
     past_messages = history_mgr.load()
     try:
-        response = generate_command(objective, context=piped_data, model_name=model_name, history=past_messages)
+        response = generate_command(
+            objective, context=piped_data, model_name=model_name, history=past_messages
+        )
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            msg = Text()
+            msg.append("Ollama authentication required.\n\n", style="bold red")
+            msg.append("Your Ollama instance requires authentication.\n", style="bold white")
+            msg.append("Set up your API key:\n\n", style="dim")
+            msg.append("  1. Generate a key at: ", style="dim")
+            msg.append("https://ollama.com/settings/keys\n", style="bold cyan")
+            msg.append("  2. Set the environment variable:\n", style="dim")
+            msg.append("     export OLLAMA_API_KEY=<your-key>\n", style="bold cyan")
+            console.print(Panel(msg, title="[bold yellow]🔑 Authentication Required[/bold yellow]", border_style="yellow"))
+        else:
+            console.print(f"\n[bold red]● Ollama API error:[/bold red] HTTP {e.code} — {e.reason}")
+        sys.exit(1)
     except (urllib.error.URLError, ConnectionError, OSError):
         check_ollama()  # shows the panel and exits
-        sys.exit(1)     # fallback — should never reach here
-    
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"\n[bold red]● Error:[/bold red] {e}")
+        sys.exit(1)
+
     # Save the user query to history IMMEDIATELY
     history_mgr.append("user", user_prompt)
-    
-    runner = CommandRunner(governance=gov, level=active_level, model_name=model_name, history_mgr=history_mgr)
+
+    runner = CommandRunner(
+        governance=gov,
+        level=active_level,
+        model_name=model_name,
+        history_mgr=history_mgr,
+    )
     runner.execute_flow(response, objective)
+
 
 if __name__ == "__main__":
     main()
